@@ -23,6 +23,7 @@ A simple Python script to integrate Spotify's Web Connect API (https://developer
 * spotify-auth.html into openhab-conf/html
 * myopenhab.py into openhab-conf/scripts
 * spotify.py into openhab-conf/scripts
+* spotify.rules into openhab-conf/rules
 
 3. Verify you can reach spotify-auth.html
 
