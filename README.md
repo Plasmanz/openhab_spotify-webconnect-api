@@ -54,6 +54,7 @@ A simple Python script to integrate Spotify's Web Connect API (https://developer
 
 You should see this:
 
+```python
 Successfully got state from OpenHab: spotify_client_id
 Successfully got state from OpenHab: spotify_client_secret
 Successfully got state from OpenHab: spotify_access_token
@@ -74,5 +75,6 @@ Successfully posted state to OpenHab: spotify_current_device_id
  -> Success
 Successfully posted state to OpenHab: spotify_lastConnectionDateTime
 Done in 0.761183977127 seconds
+```
 
 8. You can now hook up OpenHab rules or HabPanel with the data in the spotify items.
