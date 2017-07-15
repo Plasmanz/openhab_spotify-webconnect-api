@@ -30,6 +30,7 @@ class spotify(object):
         self.oh = openhab()
 
         self.client_id = self.oh.getState('spotify_client_id')
+	self.redirecturi = self.oh.getState('spotify_redirect_uri')
         self.client_secret = self.oh.getState('spotify_client_secret')
 
         self.access_token = self.oh.getState('spotify_access_token')
@@ -51,7 +52,7 @@ class spotify(object):
         """
 
         #   Send OAuth payload to get access_token
-        payload = { 'code':self.oh.getState('spotify_auth_code'), 'client_id':self.client_id, 'client_secret':self.client_secret, 'redirect_uri':'http://192.168.1.85:8080/static/spotify-auth.html', 'grant_type':'authorization_code' }
+        payload = { 'code':self.oh.getState('spotify_auth_code'), 'client_id':self.client_id, 'client_secret':self.client_secret, 'redirect_uri':self.redirecturi, 'grant_type':'authorization_code' }
         
         print "-- Calling Token Service for the first time"
 
@@ -83,7 +84,7 @@ class spotify(object):
         """
 
         #   Send OAuth payload to get access_token
-        payload = { 'refresh_token':self.refresh_token, 'client_id':self.client_id, 'client_secret':self.client_secret, 'redirect_uri':'http://192.168.1.85:8080/static/spotify-auth.html', 'grant_type':'refresh_token' }
+        payload = { 'refresh_token':self.refresh_token, 'client_id':self.client_id, 'client_secret':self.client_secret, 'redirect_uri':self.redirecturi, 'grant_type':'refresh_token' }
         
         print "-- Calling Token Refresh Service"
 
