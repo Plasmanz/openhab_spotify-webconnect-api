@@ -26,7 +26,7 @@ class spotify(object):
     """
     def __init__(self):
 
-        self.debug = False 
+        self.debug = True
         self.oh = openhab()
 
         self.client_id = self.oh.getState('spotify_client_id')
@@ -51,7 +51,7 @@ class spotify(object):
         """
 
         #   Send OAuth payload to get access_token
-        payload = { 'code':self.oh.getState('spotify_auth_code'), 'client_id':self.client_id, 'client_secret':self.client_secret, 'redirect_uri':'http://www.puck.eu', 'grant_type':'authorization_code' }
+        payload = { 'code':self.oh.getState('spotify_auth_code'), 'client_id':self.client_id, 'client_secret':self.client_secret, 'redirect_uri':'http://192.168.1.85:8080/static/spotify-auth.html', 'grant_type':'authorization_code' }
         
         print "-- Calling Token Service for the first time"
 
@@ -83,7 +83,7 @@ class spotify(object):
         """
 
         #   Send OAuth payload to get access_token
-        payload = { 'refresh_token':self.refresh_token, 'client_id':self.client_id, 'client_secret':self.client_secret, 'redirect_uri':'http://www.puck.eu', 'grant_type':'refresh_token' }
+        payload = { 'refresh_token':self.refresh_token, 'client_id':self.client_id, 'client_secret':self.client_secret, 'redirect_uri':'http://192.168.1.85:8080/static/spotify-auth.html', 'grant_type':'refresh_token' }
         
         print "-- Calling Token Refresh Service"
 
@@ -167,6 +167,35 @@ class spotify(object):
             resp = ""
 
         return resp
+		
+    def updateTrack(self):
+        """
+        Get a current player state.
+        """
+        print "-- Calling Service: Update"
+        try:
+            resp = self.call("")
+            if (self.debug): print resp
+            if ('item' in resp):
+
+                self.oh.sendCommand('spotify_current_track', getJSONValue(resp, ['item','name']))
+                self.oh.sendCommand('spotify_current_artist', getJSONValue(resp, ['item', 'artists', 0, 'name']))
+                self.oh.sendCommand('spotify_current_cover', getJSONValue(resp, ['item', 'album', 'images', 1, 'url']))
+                self.oh.sendCommand('spotify_current_duration', getJSONValue(resp, ['item', 'duration_ms']))
+                self.oh.sendCommand('spotify_current_progress', getJSONValue(resp, ['progress_ms']))
+                self.oh.sendCommand('spotify_current_progress', getJSONValue(resp, ['progress_ms']))
+                self.oh.sendCommand('spotify_current_playing', mapValues(getJSONValue(resp, ['is_playing']), { 'True': 'ON', 'False': 'OFF' }))
+                self.oh.sendCommand('spotify_current_device', getJSONValue(resp, ['device', 'name']))
+                self.oh.sendCommand('spotify_current_device_id', getJSONValue(resp, ['device', 'id']))
+
+                print " -> Success"
+            else:
+                print " -> Item node missing from response :("
+        except:
+            print " -> Failure: ", sys.exc_info()[0]
+            resp = ""
+
+        return resp
 
     def volumeUp(self):
         """
@@ -204,6 +233,26 @@ class spotify(object):
             if (self.debug): print resp
         except:
             print " -> VolumeDown Failure: ", sys.exc_info()[0]
+            resp = ""
+
+        return resp
+		
+    def volume(self):
+        """
+        Volume down by 10%
+        """
+        print "-- Calling Service: Volume"
+        try:
+            vol = int(self.oh.getState('spotify_current_volume'))
+            """vol = int(round(vol/10)*10 - 10)"""
+            if(vol<0): 
+                vol = 0
+            print "Volume To:" + str(vol)
+            resp = self.call("volume?volume_percent=" + str(vol),"PUT" )
+            """self.oh.sendCommand('spotify_current_volume',vol)"""
+            if (self.debug): print resp
+        except:
+            print " -> Volume Failure: ", sys.exc_info()[0]
             resp = ""
 
         return resp
@@ -287,6 +336,10 @@ def main():
             c.volumeUp()
         if(args[1] == "volume_down"):
             c.volumeDown()
+        if(args[1] == "volume"):
+            c.volume()
+        if(args[1] == "trackrefresh"):
+            c.updateTrack()
         if(args[1] == "play"):
             c.play()
         if(args[1] == "pause"):
