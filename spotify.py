@@ -240,17 +240,15 @@ class spotify(object):
 		
     def volume(self):
         """
-        Volume down by 10%
+        Volume controlled by slider
         """
         print "-- Calling Service: Volume"
         try:
             vol = int(self.oh.getState('spotify_current_volume'))
-            """vol = int(round(vol/10)*10 - 10)"""
             if(vol<0): 
                 vol = 0
             print "Volume To:" + str(vol)
             resp = self.call("volume?volume_percent=" + str(vol),"PUT" )
-            """self.oh.sendCommand('spotify_current_volume',vol)"""
             if (self.debug): print resp
         except:
             print " -> Volume Failure: ", sys.exc_info()[0]
